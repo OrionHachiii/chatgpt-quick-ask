@@ -1,0 +1,11 @@
+{
+  "name": "chatgpt-quick-ask",
+  "version": "0.1.1",
+  "private": true,
+  "description": "API-free Chrome extension prototype for selection-based ChatGPT questions",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "test:browser": "node tests/browser.cjs"
+  }
+}

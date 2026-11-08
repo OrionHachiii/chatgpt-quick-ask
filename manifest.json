@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Quick Ask for ChatGPT",
+  "version": "0.1.1",
+  "description": "Explain, translate, or ask about selected ChatGPT text in a compact panel using your signed-in web account.",
+  "minimum_chrome_version": "116",
+  "permissions": [
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://chatgpt.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Quick Ask \u2014 How to use",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*"
+      ],
+      "js": [
+        "core.js",
+        "adapter.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

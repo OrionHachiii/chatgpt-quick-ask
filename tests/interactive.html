@@ -1,0 +1,39 @@
+<!doctype html><meta charset="utf-8"><title>Quick Ask · 本地交互测试</title>
+<style>body{font:14px/1.8 system-ui;background:#f4f7f2;color:#284232;margin:24px}h1{font-size:22px}iframe{border:1px solid #d5e1d3;background:white;border-radius:12px;width:100%;height:540px}#helper{height:100px}pre{white-space:pre-wrap;padding:14px;background:white;border-radius:12px}button{background:#245b3e;color:white;border:0;padding:10px 18px;border-radius:8px;cursor:pointer}</style>
+<h1>Quick Ask · 本地模拟测试</h1><p>这里使用模拟 ChatGPT 页面，不会发送真实问题，也不使用任何登录信息。</p><button id="run">运行测试</button><pre id="results">等待测试</pre><iframe id="source" src="/?mode=source" title="原聊天模拟页面"></iframe><iframe id="helper" src="/?mode=helper" title="辅助聊天模拟页面"></iframe>
+<script>
+const pause=ms=>new Promise(r=>setTimeout(r,ms));
+const out=document.getElementById('results');
+const check=(value,label)=>{if(!value)throw Error('FAIL '+label);out.textContent+='\nPASS '+label};
+document.getElementById('run').onclick=async()=>{
+ document.getElementById('run').disabled=true;out.textContent='正在运行…';
+ try{
+  const s=document.getElementById('source').contentWindow, h=document.getElementById('helper').contentWindow;
+  for(let i=0;i<50&&!s.document.getElementById('quick-ask-root');i++)await pause(100);
+  const shadow=s.document.getElementById('quick-ask-root').shadowRoot,$=id=>shadow.getElementById(id);
+  let r=s.document.createRange();r.selectNodeContents(s.document.getElementById('reading'));s.getSelection().removeAllRanges();s.getSelection().addRange(r);
+  s.document.getElementById('reading').dispatchEvent(new s.MouseEvent('mouseup',{bubbles:true,composed:true}));
+  check(!$('launcher').hidden,'选中回答后显示小问按钮');$('quick').click();await pause(150);
+  const job=s.calls.find(m=>m.type==='START');check(job?.input.text.includes('valid-ready'),'正确传送选中文字');
+  check(job.input.languageContext===s.document.getElementById('reading').innerText,'传送有限的当前回答语言参考');
+  check($('quick').textContent==='Explain this'&&$('submit').textContent==='Ask ↗'&&$('original').textContent==='Open helper tab','按钮界面为英文');
+  check(s.document.getElementById('prompt-textarea').innerText===''&&!s.sends,'未修改原聊天输入框或提交原聊天');
+  const send=(type,text,id=job.id)=>s.listeners.forEach(f=>f({channel:'quick-ask',type,text,id}));
+  send('PARTIAL','第一部分');check($('answer').textContent==='第一部分','逐步显示回答');
+  send('DONE','不属于这个请求','wrong-id');check($('answer').textContent==='第一部分','忽略不属于当前问题的回答');
+  send('DONE','<img src=x onerror=alert(1)>');check(!$('answer').querySelector('img'),'回答按纯文本呈现');
+  send('DONE','valid-ready 握手：发送方声明数据有效，接收方声明可以接收。两者同时为高时，完成一次传输。\n\n例如：发送方保持 valid，直到接收方 ready，再开始下一次传输。');
+  $('minimize').click();check(!$('pill').hidden&&$('panel').hidden,'收起后只显示小按钮');$('pill').click();
+  check(!$('panel').hidden,'可以重新展开回答');
+  $('close').click();await pause(50);check(s.calls.some(m=>m.type==='CANCEL'),'关闭时取消并清理请求');
+  const events=[];await h.QuickAskAdapter.run({prompt:'请解释 handshake',deadline:Date.now()+10000},async(type,text)=>events.push({type,text}),new h.AbortController().signal);
+  check(h.sends===1,'辅助页仅提交一次');check(h.document.querySelector('[data-message-author-role="user"]').textContent==='请解释 handshake','正确填写网页编辑器');
+  check(events.some(e=>e.type==='PARTIAL')&&events.at(-1).type==='DONE','读取流式回答并确认完成');
+  const error=await h.QuickAskAdapter.run({prompt:'不要提交',deadline:Date.now()+1000},async()=>{},new h.AbortController().signal).then(()=>'',e=>e.message);
+  check(error.includes('not a blank new chat')&&h.sends===1,'拒绝向已有聊天再次写入');
+  // Reopen the selection panel for visual inspection without starting another request.
+  s.document.getElementById('reading').dispatchEvent(new s.MouseEvent('mouseup',{bubbles:true,composed:true}));$('custom').click();
+  out.textContent+='\n\n全部通过（模拟页面；不代表已在真实 ChatGPT 验证）。';
+ }catch(e){out.textContent+='\n'+e.stack;document.getElementById('run').disabled=false;}
+};
+</script>
