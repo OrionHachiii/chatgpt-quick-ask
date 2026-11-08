@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Quick Ask for ChatGPT",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Explain, translate, or ask about selected ChatGPT text in a compact panel using your signed-in web account.",
   "minimum_chrome_version": "116",
   "permissions": [

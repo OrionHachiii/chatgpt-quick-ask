@@ -2,11 +2,11 @@
 (function (root) {
   'use strict';
   const SELECTORS = {
-    composer: '#prompt-textarea, textarea[data-id="root"]',
-    assistant: '[data-message-author-role="assistant"]',
-    user: '[data-message-author-role="user"]',
-    send: 'button[data-testid="send-button"], button[aria-label="Send prompt"], button[aria-label="Send message"], button[aria-label="发送提示"], button[aria-label="发送消息"]',
-    stop: 'button[data-testid="stop-button"], button[aria-label="Stop generating"], button[aria-label="停止生成"]',
+    composer: '#prompt-textarea, textarea[data-id="root"], [data-composer-markdown][contenteditable="true"][role="textbox"]',
+    assistant: '[data-message-author-role="assistant"], [data-markdown-text-style="assistant-message"]',
+    user: '[data-message-author-role="user"], [data-user-message-bubble="true"], [data-conversation-role="user"]',
+    send: 'button[data-testid="send-button"], button[aria-label="Send prompt"], button[aria-label="Send message"], button[aria-label="发送提示"], button[aria-label="发送消息"], button[aria-label="发送"], button[aria-label="Send"]',
+    stop: 'button[data-testid="stop-button"], button[aria-label="Stop generating"], button[aria-label="停止生成"], button[aria-label="停止"], button[aria-label="Stop"]',
     finished: '[data-testid="copy-turn-action-button"], button[aria-label="Copy"], button[aria-label="复制"]'
   };
   const visible = el => !!el && el.getClientRects().length > 0;
@@ -69,8 +69,9 @@
         last = text; stableSince = Date.now(); if (!firstTextAt && text) firstTextAt = Date.now();
         if (text) await report('PARTIAL', text);
       }
-      const turn = message?.closest('article, [data-testid^="conversation-turn-"]');
-      const completeControl = !!turn?.querySelector(SELECTORS.finished);
+      const turn = message?.closest('article, [data-testid^="conversation-turn-"], [data-content-search-unit-key$=":assistant"]');
+      const turnState = message?.closest('[data-talvt-turn-state]')?.getAttribute('data-talvt-turn-state');
+      const completeControl = !!turn?.querySelector(SELECTORS.finished) || turnState === 'complete';
       // Without a completion marker, do not guess that a pause in a long answer means completion.
       if (last && !generating && (seenStop || completeControl) && Date.now() - stableSince > 1800 && Date.now() - firstTextAt > 1800) {
         await report('DONE', last); return;

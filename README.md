@@ -2,7 +2,7 @@
 
 Ask a small question while reading a long ChatGPT response. Select a term or passage to explain, translate, or ask about it in a compact floating panel, without adding a message to the original conversation.
 
-**Experimental prototype · v0.1.1.** Local logic tests and simulated browser interactions have passed. Live ChatGPT compatibility has not yet been fully verified. This is an independent project, not affiliated with or endorsed by OpenAI.
+**Experimental prototype · v0.1.2.** Local logic tests and simulated browser interactions have passed. A basic English explanation flow, minimize, and restore were verified in a signed-in Chrome session on November 8, 2026. Other live flows and languages remain to be verified. This is an independent project, not affiliated with or endorsed by OpenAI.
 
 [中文说明](README.zh-CN.md) · [Privacy policy](PRIVACY.md) · [Verification scope](VERIFICATION.md)
 
@@ -49,9 +49,11 @@ This prototype depends on the current ChatGPT page structure. Website updates, b
 
 Replies are plain text. Full Markdown, math, and code-block rendering are not provided. A panel follow-up is a new question about the selection, rather than a continued panel conversation. Only `chatgpt.com` in desktop Chrome is matched. No compatibility guarantee is made for other browsers, domains, mobile apps, or ChatGPT desktop app chat surfaces.
 
-The preview below shows the extension UI running on a **local simulated page with a sample answer**, not a live ChatGPT end-to-end result.
+The screenshot below shows a real selection-to-answer test on ChatGPT. The sample conversation contains no private chat content.
 
-![Local simulated UI preview](preview-local-test.png)
+![Live explanation panel](assets/live-explanation-1280x800.jpg)
+
+The earlier local fixture preview is preserved in `preview-local-test.png` and is a simulated page.
 
 ## Development and tests
 

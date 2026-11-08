@@ -125,8 +125,8 @@
     if (!selection || selection.isCollapsed || !selection.rangeCount) { $('launcher').hidden = true; return; }
     const range = selection.getRangeAt(0);
     const element = node => node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
-    const start = element(range.startContainer)?.closest('[data-message-author-role="assistant"]');
-    const end = element(range.endContainer)?.closest('[data-message-author-role="assistant"]');
+    const start = element(range.startContainer)?.closest(QuickAskAdapter.SELECTORS.assistant);
+    const end = element(range.endContainer)?.closest(QuickAskAdapter.SELECTORS.assistant);
     const text = selection.toString().trim();
     if (!start || start !== end || !text || text.length > 6000) { $('launcher').hidden = true; return; }
     selected = text; selectedContext = start.innerText.slice(0, 1200); anchor = range.getBoundingClientRect();
